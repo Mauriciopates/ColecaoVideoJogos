@@ -24,6 +24,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -59,19 +60,14 @@ fun ListaJogos(jogos: List<Videojogo>, modifier: Modifier = Modifier) {
     }
 }
 @Composable
-fun EcraLista(modifier: Modifier = Modifier) {
-    // 1. Estado: o texto que o utilizador escreve
-    var pesquisa by remember { mutableStateOf("") }
-
-    // 2. Derivado do estado: a lista filtrada é recalculada sempre que "pesquisa" muda
-    val jogosFiltrados = jogosExemplo.filter {
-        it.nome.contains(pesquisa, ignoreCase = true)
-    }
-
+fun EcraLista(
+    modifier: Modifier = Modifier,
+    viewModel: JogosViewModel = viewModel()
+) {
     Column(modifier = modifier) {
         OutlinedTextField(
-            value = pesquisa,
-            onValueChange = { pesquisa = it },   // 3. Cada tecla atualiza o estado
+            value = viewModel.pesquisa,
+            onValueChange = { viewModel.alterarPesquisa(it) },
             label = { Text("Pesquisar por nome") },
             singleLine = true,
             modifier = Modifier
@@ -79,10 +75,11 @@ fun EcraLista(modifier: Modifier = Modifier) {
                 .padding(8.dp)
         )
 
-        if (jogosFiltrados.isEmpty()) {
+        val jogos = viewModel.jogosFiltrados
+        if (jogos.isEmpty()) {
             Text("Nenhum jogo encontrado.", modifier = Modifier.padding(16.dp))
         } else {
-            ListaJogos(jogos = jogosFiltrados)
+            ListaJogos(jogos = jogos)
         }
     }
 }
