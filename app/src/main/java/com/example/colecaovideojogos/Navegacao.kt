@@ -26,7 +26,11 @@ fun AppNavegacao() {
 
         composable("formulario") {
             EcraFormulario(
-                    aoVoltar = { navController.popBackStack() }
+                aoGuardar = { jogo ->
+                    viewModel.adicionar(jogo)
+                    navController.popBackStack()
+                },
+                aoVoltar = { navController.popBackStack() }
             )
         }
     }

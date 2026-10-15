@@ -19,4 +19,9 @@ class JogosViewModel : ViewModel() {
     fun alterarPesquisa(texto: String) {
         pesquisa = texto
     }
+    fun adicionar(jogo: Videojogo) {
+        // Novo id = maior id existente + 1 (ou 1 se a lista estiver vazia)
+        val novoId = (_jogos.maxOfOrNull { it.id } ?: 0) + 1
+        _jogos.add(jogo.copy(id = novoId))
+    }
 }
