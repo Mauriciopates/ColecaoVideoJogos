@@ -1,31 +1,41 @@
 package com.example.colecaovideojogos
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.NavType
 import androidx.navigation.navArgument
-import androidx.compose.runtime.remember
-
 
 @Composable
 fun AppNavegacao() {
     // 1. O "comboio": controla em que ecrã estamos
     val navController = rememberNavController()
 
-    // 2. Um só ViewModel, partilhado pelos dois ecrãs
+    // 2. Um só ViewModel, partilhado por todos os ecrãs
     val viewModel: JogosViewModel = viewModel()
 
     // 3. O "mapa": que ecrãs existem e qual é o primeiro
-    NavHost(navController = navController, startDestination = "lista") {
+    NavHost(navController = navController, startDestination = "inicio") {   // ← MUDOU
+
+        // Ecrã inicial com estatísticas  ← NOVO
+        composable("inicio") {
+            EcraInicial(
+                viewModel = viewModel,
+                aoVerColecao = { navController.navigate("lista") },
+                aoAdicionar = { navController.navigate("formulario/0") },
+                aoAbrirJogo = { jogo -> navController.navigate("formulario/${jogo.id}") }
+            )
+        }
 
         composable("lista") {
             EcraLista(
                 viewModel = viewModel,
                 aoAdicionar = { navController.navigate("formulario/0") },
-                aoEditar = { jogo -> navController.navigate("formulario/${jogo.id}") }
+                aoEditar = { jogo -> navController.navigate("formulario/${jogo.id}") },
+                aoVoltar = { navController.popBackStack() }
             )
         }
 
@@ -34,7 +44,7 @@ fun AppNavegacao() {
             arguments = listOf(navArgument("id") { type = NavType.IntType })
         ) { entrada ->
             val id = entrada.arguments?.getInt("id") ?: 0
-            val jogoInicial = remember(id) { if (id > 0) viewModel.obterPorId(id) else null }   // ← MUDOU
+            val jogoInicial = remember(id) { if (id > 0) viewModel.obterPorId(id) else null }
 
             EcraFormulario(
                 jogoInicial = jogoInicial,
@@ -47,7 +57,7 @@ fun AppNavegacao() {
                     navController.popBackStack()
                 },
                 aoVoltar = { navController.popBackStack() },
-                aoEliminar = {                                   // ← NOVO
+                aoEliminar = {
                     jogoInicial?.let { viewModel.eliminar(it) }
                     navController.popBackStack()
                 }
