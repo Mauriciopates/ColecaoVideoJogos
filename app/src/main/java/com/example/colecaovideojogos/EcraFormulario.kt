@@ -9,13 +9,16 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -30,16 +33,19 @@ import java.util.Calendar
 
 @Composable
 fun EcraFormulario(
+    jogoInicial: Videojogo? = null,          // null = novo jogo; preenchido = editar
     aoGuardar: (Videojogo) -> Unit,
-    aoVoltar: () -> Unit
+    aoVoltar: () -> Unit,
+    aoEliminar: () -> Unit = {}              // ← NOVO
 ) {
-    // 1. Estado de cada campo (rememberSaveable: sobrevive à rotação)
-    var nome by rememberSaveable { mutableStateOf("") }
-    var plataforma by rememberSaveable { mutableStateOf("") }
-    var genero by rememberSaveable { mutableStateOf("") }
-    var ano by rememberSaveable { mutableStateOf("") }
-    var estado by rememberSaveable { mutableStateOf(Estado.POR_JOGAR) }
+    // 1. Estado de cada campo, já com os valores do jogo (se estivermos a editar)
+    var nome by rememberSaveable { mutableStateOf(jogoInicial?.nome ?: "") }
+    var plataforma by rememberSaveable { mutableStateOf(jogoInicial?.plataforma ?: "") }
+    var genero by rememberSaveable { mutableStateOf(jogoInicial?.genero ?: "") }
+    var ano by rememberSaveable { mutableStateOf(jogoInicial?.ano?.toString() ?: "") }
+    var estado by rememberSaveable { mutableStateOf(jogoInicial?.estado ?: Estado.POR_JOGAR) }
     var tentouGuardar by rememberSaveable { mutableStateOf(false) }
+    var mostrarConfirmacao by rememberSaveable { mutableStateOf(false) }   // ← NOVO
 
     // 2. Validação: cada campo tem uma mensagem de erro, ou null se estiver OK
     val anoMaximo = Calendar.getInstance().get(Calendar.YEAR) + 1
@@ -63,7 +69,10 @@ fun EcraFormulario(
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Text("Novo jogo", style = MaterialTheme.typography.headlineSmall)
+            Text(
+                text = if (jogoInicial == null) "Novo jogo" else "Editar jogo",
+                style = MaterialTheme.typography.headlineSmall
+            )
 
             // 3. Campos de texto (só mostram erros depois de tentar guardar)
             CampoTexto("Nome", nome, { nome = it }, if (tentouGuardar) erroNome else null)
@@ -106,6 +115,7 @@ fun EcraFormulario(
                     if (formularioValido) {
                         aoGuardar(
                             Videojogo(
+                                id = jogoInicial?.id ?: 0,
                                 nome = nome.trim(),
                                 plataforma = plataforma.trim(),
                                 genero = genero.trim(),
@@ -118,6 +128,43 @@ fun EcraFormulario(
                     Text("Guardar")
                 }
             }
+
+            // 6. Eliminar: só aparece ao editar  ← NOVO
+            if (jogoInicial != null) {
+                OutlinedButton(
+                    onClick = { mostrarConfirmacao = true },
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        contentColor = MaterialTheme.colorScheme.error
+                    ),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Eliminar jogo")
+                }
+            }
+        }
+
+        // 7. Diálogo de confirmação  ← NOVO
+        if (mostrarConfirmacao) {
+            AlertDialog(
+                onDismissRequest = { mostrarConfirmacao = false },
+                title = { Text("Eliminar jogo") },
+                text = {
+                    Text("Tem a certeza que quer eliminar \"${jogoInicial?.nome}\"? Esta ação não pode ser anulada.")
+                },
+                confirmButton = {
+                    TextButton(onClick = {
+                        mostrarConfirmacao = false
+                        aoEliminar()
+                    }) {
+                        Text("Eliminar", color = MaterialTheme.colorScheme.error)
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { mostrarConfirmacao = false }) {
+                        Text("Cancelar")
+                    }
+                }
+            )
         }
     }
 }

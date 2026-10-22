@@ -23,6 +23,6 @@ val jogosExemplo = listOf(
     Videojogo(4, "Hades", "PC", "Roguelike", 2020, Estado.CONCLUIDO),
     Videojogo(5, "Mario Kart 8", "Switch", "Corridas", 2014, Estado.A_JOGAR),
     Videojogo(6, "God of War", "PS4", "Ação", 2018, Estado.POR_JOGAR),
-    Videojogo(7, "The Legend of Zelda: Breath of the Wild", "Switch", "Aventura", 2017, Estado.CONCLUIDO),
+    Videojogo(7, "God of War", "PS4", "Ação", 2018, Estado.POR_JOGAR),
     Videojogo(8, "Batman Arkham Knight", "PS4", "Ação", 2015, Estado.CONCLUIDO)
 )

@@ -24,4 +24,17 @@ class JogosViewModel : ViewModel() {
         val novoId = (_jogos.maxOfOrNull { it.id } ?: 0) + 1
         _jogos.add(jogo.copy(id = novoId))
     }
+    fun obterPorId(id: Int): Videojogo? =
+        _jogos.find { it.id == id }
+
+    fun atualizar(jogo: Videojogo) {
+        val indice = _jogos.indexOfFirst { it.id == jogo.id }
+        if (indice != -1) {
+            _jogos[indice] = jogo
+        }
+    }
+
+    fun eliminar(jogo: Videojogo) {
+        _jogos.removeAll { it.id == jogo.id }
+    }
 }
