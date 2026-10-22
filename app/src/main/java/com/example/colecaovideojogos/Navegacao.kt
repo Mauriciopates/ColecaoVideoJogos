@@ -9,6 +9,7 @@ import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import androidx.compose.runtime.remember
 
+
 @Composable
 fun AppNavegacao() {
     // 1. O "comboio": controla em que ecrã estamos
