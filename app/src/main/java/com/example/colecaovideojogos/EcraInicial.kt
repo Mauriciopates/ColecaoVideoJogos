@@ -207,7 +207,10 @@ fun BarraEstados(contagens: Map<Estado, Int>) {
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             contagens.forEach { (estado, quantidade) ->
-                Legenda(cor = corDoEstado(estado), texto = "$quantidade ${estado.texto.lowercase()}")
+                val nome = estado.texto.lowercase()
+                // "concluído" vai para o plural quando não é 1 (0, 2, 3... → "concluídos")
+                val nomeFinal = if (estado == Estado.CONCLUIDO && quantidade != 1) "${nome}s" else nome
+                Legenda(cor = corDoEstado(estado), texto = "$quantidade $nomeFinal")
             }
         }
     }
